@@ -124,7 +124,3 @@ Dradis Framework Community Edition is released under [GNU General Public License
 
 Dradis Framework Professional Edition is released under a commercial license.
 
-
-## We're hiring
-
-If you love open source, Ruby on Rails and would like to have a lot of freedom and autonomy in your work, maybe you should consider [joining our team](https://dradisframework.com/careers.html) to make Dradis even better.
