@@ -1,3 +1,16 @@
+vagrant_dir = __dir__
+show_logo = false
+branch_c = "\033[38;5;6m" # 111m"
+red = "\033[38;5;9m" # 124m"
+green = "\033[1;38;5;2m" # 22m"
+blue = "\033[38;5;4m" # 33m"
+purple = "\033[38;5;5m" # 129m"
+docs = "\033[0m"
+yellow = "\033[38;5;3m" # 136m"
+yellow_underlined = "\033[4;38;5;3m" # 136m"
+url = yellow_underlined
+creset = "\033[0m"
+
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
@@ -26,7 +39,7 @@ Vagrant.configure('2') do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  # config.vm.network 'private_network', ip: '192.168.33.10'
+  config.vm.network 'private_network', ip: '192.168.33.10'
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -62,6 +75,18 @@ Vagrant.configure('2') do |config|
   #   push.app = 'YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME'
   # end
 
+   # Auto Download Vagrant plugins, supported from Vagrant 2.2.0
+   unless Vagrant.has_plugin?('vagrant-goodhosts')
+    if File.file?(File.join(vagrant_dir, 'vagrant-goodhosts.gem'))
+      system('vagrant plugin install ' + File.join(vagrant_dir, 'vagrant-goodhosts.gem'))
+      File.delete(File.join(vagrant_dir, 'vagrant-goodhosts.gem'))
+      puts ("#{green} The vagrant-goodhosts plugin is now installed. Please run the requested command again.#{creset}")
+      exit
+    else
+      config.vagrant.plugins = ['vagrant-goodhosts']
+    end
+  end
+
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
@@ -82,7 +107,19 @@ Vagrant.configure('2') do |config|
       cp phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin/phantomjs && \
       rm -rf ./phantomjs-2.1.1-linux-x86_64.*
     )
-    su ubuntu -c 'type rvm >/dev/null 2>&1 || (( gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 ) && ( curl -sSL https://get.rvm.io | bash -s stable ))'
+    su ubuntu -c 'type rvm >/dev/null 2>&1 || (( gpg --keyserver hkp://pgp.mit.edu --recv-keys D39DC0E3    ) && ( curl -sSL https://get.rvm.io | bash -s stable ))'
     su ubuntu -c 'cd /dradis/dradis-ce/ && source "$HOME/.profile" && rvm install "$(cat .ruby-version)"'
   SHELL
+
+   # Auto Download Vagrant plugins, supported from Vagrant 2.2.0
+    if Vagrant.has_plugin?('vagrant-goodhosts')
+      puts ("#{yellow}Running vagrant goodhosts...#{creset}")
+      config.vagrant.plugins = ['vagrant-goodhosts']
+      config.goodhosts.aliases = ["dradis-ce.local", "dradis-dev.local"]
+      config.goodhosts.remove_on_suspend = true
+      config.goodhosts.disable_clean = true 
+    else
+      puts ("#{yellow}Running mv host name#{creset}")
+      config.vm.hostname = "dradis-ce.local"
+    end 
 end
